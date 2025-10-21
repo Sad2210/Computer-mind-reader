@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reverse Crypto Mind Reader ($CCMR)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: radial-gradient(circle at 70% 35%, #2b2250 0%, #0e0020 100%);
+      color: #fff;
+      font-family: 'Montserrat', Arial, sans-serif;
+    }
+    h1, h2 {
+      font-family: 'Orbitron', monospace;
+      color: #b07cff;
+      letter-spacing: 1.5px;
+      text-shadow: 0 0 5px #d64be3, 0 0 12px #7ee0ff;
+    }
+    .container {
+      max-width: 680px;
+      margin: 40px auto;
+      background: rgba(30,20,60,0.88);
+      padding: 32px 20px;
+      border-radius: 24px;
+      box-shadow: 0 0 18px #57346980;
+      position: relative;
+    }
+    .crypto-list {
+      margin: 9px 0 15px 0;
+    }
+    .crypto-box {
+      display: inline-block;
+      margin: 7px;
+      background: #3a1460;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-shadow: 0 0 6px #ffcbf488;
+      transition: all 0.18s;
+    }
+    select {
+      font-size: 1.1em;
+      padding: 8px;
+      border-radius: 7px;
+      margin: 14px 0;
+      border: none;
+      background: #b2aaff;
+      color: #260b26;
+      font-weight: bold;
+    }
+    button {
+      margin: 10px 14px 0 0;
+      padding: 9px 24px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #90e7ff 40%, #eb84ee 100%);
+      color: #250033;
+      font-size: 1.14em;
+      border: none;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 0 5px #2badff80;
+      transition: background 0.22s;
+    }
+    button:active { background: #fff2da; }
+    .result {
+      background:#311b47;
+      padding:28px 18px;
+      border-radius:12px;
+      margin:22px 0 0 0;
+      box-shadow:0 0 17px #a47aff88;
+      text-align:center;
+    }
+    .ad-banner {
+      text-align: center;
+      background: rgba(48,33,93,0.95);
+      padding: 16px 10px;
+      border-radius: 10px;
+      margin: 22px auto 14px auto;
+    }
+    .ad-banner img {height:48px;border-radius:6px;}
+    .info {opacity:0.66;font-size:0.98em;margin-top:8px;}
+  </style>
+</head>
+<body>
+  <div class="container" id="game"></div>
+
+  <!-- Rewarded ad/banner placeholder -->
+  <div id="ad" class="ad-banner">
+    <a href="https://partnerexchange.com" target="_blank">
+      <img src="https://your-ad-image-url.com/banner.png" alt="Ad Banner">
+      <div>🚀 Boost your CCMR at Partner Exchange!</div>
+    </a>
+  </div>
+
+  <script>
+  // --- CONFIG ---
+  const cryptos = [
+    "Bitcoin (BTC)", "Ethereum (ETH)", "Tether (USDT)", "BNB (BNB)", "Solana (SOL)",
+    "XRP (XRP)", "Dogecoin (DOGE)", "Cardano (ADA)", "Avalanche (AVAX)", "Shiba Inu (SHIB)",
+    "Polkadot (DOT)", "Chainlink (LINK)", "Hyperliquid (HYPE)", "Pi (PI)", "Zcash (ZEC)",
+    "FLOKI (FLOKI)", "Sui (SUI)", "Pepe (PEPE)", "Litecoin (LTC)", "Stellar (XLM)"
+  ];
+  const totalPages = 5; // Number of yes/no pages (bits in binary)
+
+  // --- GAME STATE ---
+  let computerPickIdx = Math.floor(Math.random() * cryptos.length) + 1; // 1-based
+  let page = 0;
+  let responses = []; // yes/no answers (from computer)
+  let pageContent = [];
+
+  // --- BIT PAGE BUILDER ---
+  function getBitPage(pos) {
+    let arr = [];
+    for (let i = 0; i < cryptos.length; i++) {
+      if (((i+1) >> pos) & 1) arr.push({idx: i+1, name: cryptos[i]});
+    }
+    return arr;
+  }
+  for (let i = 0; i < totalPages; i++) pageContent.push(getBitPage(i));
+
+  // --- UI LOGIC ---
+  function showPage() {
+    let el = document.getElementById('game');
+    if (page === 0) {
+      el.innerHTML = `<h1>Reverse Crypto Mind Reader</h1>
+      <p><b>I have picked a secret crypto!</b></p>
+      <div class="info">Ask 5 questions. I'll answer Yes/No. Then, try to guess which one I chose for a chance to earn <span style="color:#46ffbc;font-weight:bold;">$CCMR</span>!</div>
+      <button onclick="next()">Start Asking</button>
+      <div class="info" style="margin-top:11px;">Engage with the ad below for bonus rewards.</div>`;
+    } else if (page >=1 && page <= totalPages) {
+      let items = pageContent[page-1];
+      let answer = (((computerPickIdx) >> (page-1)) & 1) ? "Yes" : "No";
+      el.innerHTML = `<h2>Round ${page} &ndash; Is my crypto in this list?</h2>
+        <div class="crypto-list">${items.map(o=>`<span class='crypto-box'>${o.idx}. ${o.name}</span>`).join('')}</div>
+        <button onclick="reply('${answer}')">Ask</button>
+        <div class="info">
+            Previous Answers: ${responses.map((a,i)=>`Q${i+1}: <span style='color:#5afff3'>${a}</span>`).join(' &nbsp; ')}
+        </div>`;
+    } else {
+      el.innerHTML = `<h2>Final Guess!</h2>
+        <p>Review my answers:</p>
+        <div>${responses.map((a,i)=>`Page ${i+1}: <b>${a}</b>`).join('<br>')}</div>
+        <p>Which crypto do you think I picked?</p>
+        <select id="userPick">${cryptos.map((c,i)=>`<option value="${i+1}">${i+1}. ${c}</option>`)}</select>
+        <div style="margin:14px 0;">
+          <button onclick="checkGuess()">Submit Guess 🚀</button>
+          <button onclick="restart()">Play Again</button>
+        </div>
+        <div class="info">Guess right to win $CCMR!</div>`;
+    }
+  }
+
+  function next() { page++; showPage(); }
+  function reply(ans) { responses.push(ans); next(); }
+  function checkGuess() {
+    let val = document.getElementById('userPick').value;
+    let el = document.getElementById('game');
+    if (parseInt(val) === computerPickIdx) {
+      // Placeholder: integrate CCMR reward logic here
+      el.innerHTML = `<div class="result">
+        <h2>🎉 Correct! I picked:<br/><span class="crypto-box">${val}. ${cryptos[val-1]}</span></h2>
+        <div style="margin:12px 0;">
+          <button onclick="claimReward()">Claim $CCMR</button>
+          <button onclick="restart()">Play Again</button>
+        </div>
+        <div class="info">Your reward will be sent after wallet connection. Learn more in the app.</div>
+      </div>`;
+    } else {
+      el.innerHTML = `<div class="result">
+        <h2>🙁 Wrong! I had picked:<br/><span class="crypto-box">${computerPickIdx}. ${cryptos[computerPickIdx-1]}</span></h2>
+        <div style="margin:10px 0;">
+          <button onclick="restart()">Try Again</button>
+        </div>
+      </div>`;
+    }
+  }
+  function restart() {
+    computerPickIdx = Math.floor(Math.random() * cryptos.length) + 1; page = 0; responses = [];
+    showPage();
+  }
+  // --- Placeholder function for wallet/payments ---
+  function claimReward() {
+    alert("Connect your wallet to claim your $CCMR. (Integrate Farcaster Mini App wallet and payout here!)");
+    // Integrate $CCMR payout logic, as described in previous answers.
+  }
+  // --- Start the game ---
+  showPage();
+  </script>
+</body>
+</html>
