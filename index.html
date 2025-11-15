@@ -122,6 +122,7 @@
   for (let i = 0; i < totalPages; i++) pageContent.push(getBitPage(i));
 
   // --- UI LOGIC ---
+    app.action.ready();
   function showPage() {
     let el = document.getElementById('game');
     if (page === 0) {
@@ -191,3 +192,4 @@
   </script>
 </body>
 </html>
+
