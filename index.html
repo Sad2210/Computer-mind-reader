@@ -122,8 +122,8 @@
   for (let i = 0; i < totalPages; i++) pageContent.push(getBitPage(i));
 
   // --- UI LOGIC ---
-    app.action.ready();
   function showPage() {
+    sdk.actions.ready()
     let el = document.getElementById('game');
     if (page === 0) {
       el.innerHTML = `<h1>Reverse Crypto Mind Reader</h1>
@@ -192,4 +192,5 @@
   </script>
 </body>
 </html>
+
 
